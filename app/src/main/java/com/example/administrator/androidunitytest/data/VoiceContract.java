@@ -56,7 +56,7 @@ public final class VoiceContract {
          *
          * Type: TEXT
          */
-        public final static String RESPOND_WORD = "respond _word";
+        public final static String RESPOND_WORD = "respond_word";
 
         /**
          * Times of called

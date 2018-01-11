@@ -1,5 +1,6 @@
 package com.example.administrator.androidunitytest;
 
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.nfc.Tag;
 import android.os.Bundle;
@@ -7,6 +8,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.administrator.androidunitytest.data.CommandDbHelper;
+import com.example.administrator.androidunitytest.data.VoiceContract;
+import com.example.administrator.androidunitytest.data.VoiceContract.CommandEntry;
 import com.iflytek.cloud.RecognizerListener;
 import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechConstant;
@@ -125,4 +128,41 @@ public class MainActivity extends UnityPlayerActivity {
         mDbHelper = new CommandDbHelper(this);
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
     }
+
+    private void insertNewCommand(){
+        mDbHelper = new CommandDbHelper(this);
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(CommandEntry.KEYWORD, "123");
+        values.put(CommandEntry.SCENE, "123");
+        values.put(CommandEntry.METHOD, "123");
+        values.put(CommandEntry.RESPOND_WORD, "123");
+        values.put(CommandEntry.CALLED_TIMES, Integer.parseInt("123"));
+        values.put(CommandEntry.ANIMATION_TYPE, Integer.parseInt("123"));
+        values.put(CommandEntry.ANIMATION_NAME, "123");
+        values.put(CommandEntry.ANIMATION_VALUE, Integer.parseInt("123"));
+        values.put(CommandEntry.LINK, "123");
+        values.put(CommandEntry.COMMENT, "123");
+
+        long insertId = db.insert(CommandEntry.TABLE_NAME, null, values);
+    }
+    /*
+    private void insertNewCommand(final String[] properties){
+        mDbHelper = new CommandDbHelper(this);
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(CommandEntry.KEYWORD, properties[0]);
+        values.put(CommandEntry.SCENE, properties[1]);
+        values.put(CommandEntry.METHOD, properties[2]);
+        values.put(CommandEntry.RESPOND_WORD, properties[3]);
+        values.put(CommandEntry.CALLED_TIMES, Integer.parseInt(properties[4]));
+        values.put(CommandEntry.ANIMATION_TYPE, Integer.parseInt(properties[5]));
+        values.put(CommandEntry.ANIMATION_NAME, properties[6]);
+        values.put(CommandEntry.ANIMATION_VALUE, Integer.parseInt(properties[7]));
+        values.put(CommandEntry.LINK, properties[8]);
+        values.put(CommandEntry.COMMENT, properties[9]);
+
+        long insertId = db.insert(CommandEntry.TABLE_NAME, null, values);
+    }
+    */
 }
