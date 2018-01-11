@@ -1,10 +1,12 @@
 package com.example.administrator.androidunitytest;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.administrator.androidunitytest.data.CommandDbHelper;
 import com.iflytek.cloud.RecognizerListener;
 import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechConstant;
@@ -15,6 +17,9 @@ import com.unity3d.player.UnityPlayer;
 import com.unity3d.player.UnityPlayerActivity;
 
 public class MainActivity extends UnityPlayerActivity {
+
+    //instance of database;
+    private CommandDbHelper mDbHelper;
 
     String AndroidManager = "AndroidManager";
     String voiceResult = "";
@@ -114,5 +119,10 @@ public class MainActivity extends UnityPlayerActivity {
                 Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void dataBaseTest(){
+        mDbHelper = new CommandDbHelper(this);
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
     }
 }

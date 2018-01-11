@@ -17,6 +17,9 @@ public final class VoiceContract {
      */
     public static final class CommandEntry implements BaseColumns{
 
+        /** Name of database table for command */
+        public final static String TABLE_NAME = "command";
+
         /**
          * Unique ID number for the command (only for use in the database table).
          *
@@ -45,7 +48,7 @@ public final class VoiceContract {
          *
          * Type: TEXT
          */
-        public final static String COMMAND = "command";
+        public final static String METHOD = "method";
 
 
         /**
