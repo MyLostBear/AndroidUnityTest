@@ -10,6 +10,7 @@ import com.example.administrator.androidunitytest.data.VoiceContract.CommandEntr
  *
  * extends from SQLiteOpenHelper,
  * MUST override TWO method : OnCreate() and OnUpgrade()
+ * Manages database creation and version management.
  */
 
 public class CommandDbHelper extends SQLiteOpenHelper {

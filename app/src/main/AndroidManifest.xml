@@ -38,6 +38,10 @@
             </intent-filter>
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
         </activity>
+        <provider
+            android:authorities="com.example.administrator.androidunitytest"
+            android:name=".data.CommandProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>

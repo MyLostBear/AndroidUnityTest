@@ -172,7 +172,7 @@ public class MainActivity extends UnityPlayerActivity {
         // Perform a query on the provider using the ContentResolver.
         Cursor cursor = getContentResolver().query(
                 CommandEntry.CONTENT_URI,
-                null,
+                projection,
                 null,
                 null,
                 null
