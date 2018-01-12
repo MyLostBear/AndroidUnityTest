@@ -1,7 +1,10 @@
 package com.example.administrator.androidunitytest;
 
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.Cursor;
+import android.net.Uri;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
@@ -71,7 +74,6 @@ public class MainActivity extends UnityPlayerActivity {
             UnityPlayer.UnitySendMessage(AndroidManager, "ShowLog" , "音量变化");
         }
 
-
         //开始录音
         @Override
         public void onBeginOfSpeech() {
@@ -92,7 +94,7 @@ public class MainActivity extends UnityPlayerActivity {
             if(b){
                 UnityPlayer.UnitySendMessage(AndroidManager, "ShowLog" , voiceResult);
 
-                // TODO: 2018/1/9 在这里加入语句中断
+                //TODO: 2018/1/9 在这里加入语句中断
                 voiceResult= "";
             }
 
@@ -115,6 +117,11 @@ public class MainActivity extends UnityPlayerActivity {
         }
     };
 
+
+
+
+
+
     public void ST(final String msg){
         runOnUiThread(new Runnable() {
             @Override
@@ -124,14 +131,74 @@ public class MainActivity extends UnityPlayerActivity {
         });
     }
 
+
+    /**
+     * 以下为数据库处理部分
+     */
+
     private void dataBaseTest(){
         mDbHelper = new CommandDbHelper(this);
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
     }
 
+    private void getCommandKeywords(){
+        String[] projecion = {
+                CommandEntry.KEYWORD,
+                CommandEntry.CALLED_TIMES
+        };
+
+        //CursorLoader cursorLoader = new CursorLoader(this, );
+    }
+
+
+    private void displayCommand(){
+
+        // Define a projection that specifies which columns from the database
+        // you will actually use after this query.
+        String[] projection = {
+                CommandEntry._ID,
+                CommandEntry.KEYWORD,
+                CommandEntry.SCENE,
+                CommandEntry.METHOD,
+                CommandEntry.RESPOND_WORD,
+                CommandEntry.CALLED_TIMES,
+                CommandEntry.ANIMATION_TYPE,
+                CommandEntry.ANIMATION_NAME,
+                CommandEntry.ANIMATION_VALUE,
+                CommandEntry.LINK,
+                CommandEntry.COMMENT
+        };
+
+        // Perform a query on the provider using the ContentResolver.
+        Cursor cursor = getContentResolver().query(
+                CommandEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+                );
+
+        if(cursor == null){
+        }
+        int i = 0;
+
+        try{
+            while(cursor.moveToNext()){
+                i++;
+            }
+            ST(String.valueOf(i));
+        } finally{
+            // Always close the cursor when you're done reading from it. This releases all its
+            // resources and makes it invalid.
+            cursor.close();
+        }
+
+    }
+
+
     private void insertNewCommand(){
-        mDbHelper = new CommandDbHelper(this);
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        //mDbHelper = new CommandDbHelper(this);
+        //SQLiteDatabase db = mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(CommandEntry.KEYWORD, "123");
         values.put(CommandEntry.SCENE, "123");
@@ -144,7 +211,9 @@ public class MainActivity extends UnityPlayerActivity {
         values.put(CommandEntry.LINK, "123");
         values.put(CommandEntry.COMMENT, "123");
 
-        long insertId = db.insert(CommandEntry.TABLE_NAME, null, values);
+        //long insertId = db.insert(CommandEntry.TABLE_NAME, null, values);
+
+        Uri newUri = getContentResolver().insert(CommandEntry.CONTENT_URI, values);
     }
     /*
     private void insertNewCommand(final String[] properties){
