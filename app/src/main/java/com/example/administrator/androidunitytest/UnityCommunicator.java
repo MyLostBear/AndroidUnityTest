@@ -11,12 +11,12 @@ public class UnityCommunicator {
     static String AndroidManager = "AndroidManager";
 
     //调用unity时所要找的unity的方法
-    public static String LISTEN_TO_PLAYER = "ListenToPlayer";
+    public static String SHOW_LOG = "ShowLog";
 
     public static String UnityMethod  = "";
     public static String UnitySetKeyMethod = "GetKeyFromDB";
     public static String UnitySetResMethod = "GetResFromDB";
-    public static String voiceResult = "";
+
 
 
     public static void SendMessageToUnity(String methodName, String para){

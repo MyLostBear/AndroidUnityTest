@@ -39,92 +39,20 @@ public class MainActivity extends UnityPlayerActivity {
         super.onCreate(savedInstanceState);
 
         //初始化讯飞语音配置对象
-        SpeechUtility.createUtility(getApplicationContext(), SpeechConstant.APPID + " = 5a49e627");
+        XunFeiListener.ListenerInit(getApplicationContext());
+        //SpeechUtility.createUtility(getApplicationContext(), SpeechConstant.APPID + " = 5a49e627");
         BaiduLexer.baiduClientInit();
         BaiduLexer.sentenceLexer("特朗普任期满一年，美国共和党政府停摆");
     }
 
-    public void VoiceComprehension(String methodName){
 
-
-        UnityMethod = methodName;
-        //创建recognizer对象，第二个参数：本地听写传入一个InitListener
-        SpeechRecognizer mIat = SpeechRecognizer.createRecognizer(getApplicationContext(), null);
-
-        //设置参数
-        mIat.setParameter(SpeechConstant.DOMAIN, "iat");
-        mIat.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
-        mIat.setParameter(SpeechConstant.ACCENT, "mandarin");
-
-        // 设置听写引擎
-        mIat.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
-
-        // 设置返回结果格式
-        mIat.setParameter(SpeechConstant.RESULT_TYPE, "json");
-
-        // 设置语音前端点:静音超时时间，即用户多长时间不说话则当做超时处理
-        mIat.setParameter(SpeechConstant.VAD_BOS,  "4000");
-
-        // 设置语音后端点:后端点静音检测时间，即用户停止说话多长时间内即认为不再输入， 自动停止录音
-        mIat.setParameter(SpeechConstant.VAD_EOS, "1000");
-
-        mIat.setParameter(SpeechConstant.ASR_PTT, "0");
-        //是否动态修正结果， 1为动态
-        mIat.setParameter(SpeechConstant.ASR_DWA, "0");
-        mIat.startListening(mRecoListener);
+    private void Comprehension(){
+        XunFeiListener.VoiceComprehension(getApplicationContext());
     }
 
-
-    //监听器
-    private RecognizerListener mRecoListener = new RecognizerListener() {
-        @Override
-        public void onVolumeChanged(int i, byte[] bytes) {
-            UnityPlayer.UnitySendMessage(AndroidManager, UnityMethod , "正在录音");
-        }
-
-        //开始录音
-        @Override
-        public void onBeginOfSpeech() {
-            UnityPlayer.UnitySendMessage(AndroidManager, UnityMethod , "开始录音");
-        }
-
-        //结束录音
-        @Override
-        public void onEndOfSpeech() {
-            //UnityPlayer.UnitySendMessage(AndroidManager, UnityMethod , "结束录音");
-        }
-
-        //返回的结果
-        @Override
-        public void onResult(RecognizerResult recognizerResult, boolean b) {
-            //public void
-            voiceResult = voiceResult +JsonParser.parseIatResult(recognizerResult.getResultString());
-            if(b){
-                UnityPlayer.UnitySendMessage(AndroidManager, UnityMethod , voiceResult);
-
-                voiceResult= "";
-            }
-
-
-        }
-
-        @Override
-        public void onError(SpeechError speechError) {
-
-        }
-
-        @Override
-        public void onEvent(int i, int i1, int i2, Bundle bundle) {
-            // 以下代码用于获取与云端的会话id，当业务出错时将会话id提供给技术支持人员，可用于查询会话日志，定位出错原因
-            // 若使用本地能力，会话id为null
-            //	if (SpeechEvent.EVENT_SESSION_ID == eventType) {
-            //		String sid = obj.getString(SpeechEvent.KEY_EVENT_SESSION_ID);
-            //		Log.d(TAG, "session id =" + sid);
-            //	}
-        }
-    };
-
-
+    private void Speech(String speechText){
+        XunFeiListener.VoiceSpeech(getApplicationContext(), speechText);
+    }
     public void ST(final String msg){
         runOnUiThread(new Runnable() {
             @Override
