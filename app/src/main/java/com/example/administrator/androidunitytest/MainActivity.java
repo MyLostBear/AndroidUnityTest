@@ -11,8 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.administrator.androidunitytest.data.CommandDbHelper;
-import com.example.administrator.androidunitytest.data.VoiceContract;
-import com.example.administrator.androidunitytest.data.VoiceContract.CommandEntry;
+import com.example.administrator.androidunitytest.data.VoiceContract.*;
 import com.iflytek.cloud.RecognizerListener;
 import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechConstant;
@@ -27,7 +26,13 @@ public class MainActivity extends UnityPlayerActivity {
     //instance of database;
     private CommandDbHelper mDbHelper;
 
+    //调用unity时所要找的unity的GameObject
     String AndroidManager = "AndroidManager";
+
+    //调用unity时所要找的unity的方法
+    String UnityMethod  = "";
+    String UnitySetKeyMethod = "GetKeyFromDB";
+    String UnitySetResMethod = "GetResFromDB";
     String voiceResult = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +40,14 @@ public class MainActivity extends UnityPlayerActivity {
 
         //初始化讯飞语音配置对象
         SpeechUtility.createUtility(getApplicationContext(), SpeechConstant.APPID + " = 5a49e627");
+        BaiduLexer.baiduClientInit();
+        BaiduLexer.sentenceLexer("特朗普任期满一年，美国共和党政府停摆");
     }
 
-    public void VoiceComprehension(){
+    public void VoiceComprehension(String methodName){
 
 
+        UnityMethod = methodName;
         //创建recognizer对象，第二个参数：本地听写传入一个InitListener
         SpeechRecognizer mIat = SpeechRecognizer.createRecognizer(getApplicationContext(), null);
 
@@ -71,19 +79,19 @@ public class MainActivity extends UnityPlayerActivity {
     private RecognizerListener mRecoListener = new RecognizerListener() {
         @Override
         public void onVolumeChanged(int i, byte[] bytes) {
-            UnityPlayer.UnitySendMessage(AndroidManager, "ShowLog" , "音量变化");
+            UnityPlayer.UnitySendMessage(AndroidManager, UnityMethod , "正在录音");
         }
 
         //开始录音
         @Override
         public void onBeginOfSpeech() {
-            UnityPlayer.UnitySendMessage(AndroidManager, "ShowLog" , "开始录音");
+            UnityPlayer.UnitySendMessage(AndroidManager, UnityMethod , "开始录音");
         }
 
         //结束录音
         @Override
         public void onEndOfSpeech() {
-            //UnityPlayer.UnitySendMessage(AndroidManager, "ShowLog" , "结束录音");
+            //UnityPlayer.UnitySendMessage(AndroidManager, UnityMethod , "结束录音");
         }
 
         //返回的结果
@@ -92,9 +100,8 @@ public class MainActivity extends UnityPlayerActivity {
             //public void
             voiceResult = voiceResult +JsonParser.parseIatResult(recognizerResult.getResultString());
             if(b){
-                UnityPlayer.UnitySendMessage(AndroidManager, "ShowLog" , voiceResult);
+                UnityPlayer.UnitySendMessage(AndroidManager, UnityMethod , voiceResult);
 
-                //TODO: 2018/1/9 在这里加入语句中断
                 voiceResult= "";
             }
 
@@ -118,10 +125,6 @@ public class MainActivity extends UnityPlayerActivity {
     };
 
 
-
-
-
-
     public void ST(final String msg){
         runOnUiThread(new Runnable() {
             @Override
@@ -141,15 +144,102 @@ public class MainActivity extends UnityPlayerActivity {
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
     }
 
-    private void getCommandKeywords(){
-        String[] projecion = {
+
+
+    private void getSimpleCommand(String methodName){
+        UnityMethod = methodName;
+        String[] projection = {
                 CommandEntry.KEYWORD,
-                CommandEntry.CALLED_TIMES
+                CommandEntry.SCENE,
+                CommandEntry.RESPOND_WORD,
+                CommandEntry.CALLED_TIMES,
         };
 
-        //CursorLoader cursorLoader = new CursorLoader(this, );
+        Cursor cursor = getContentResolver().query(
+                CommandEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                CommandEntry.CALLED_TIMES
+        );
+
+        try{
+            //cursor.moveToFirst();
+            int KeywordIndex = cursor.getColumnIndex(CommandEntry.KEYWORD);
+            int ResIndex = cursor.getColumnIndex(CommandEntry.RESPOND_WORD);
+            String everyThing = "";
+            while(cursor.moveToNext()){
+                String keyword = cursor.getString(KeywordIndex);
+                String respond = cursor.getString(ResIndex);
+                everyThing += keyword;
+                everyThing += keyword;
+                UnityPlayer.UnitySendMessage(AndroidManager, UnitySetKeyMethod , keyword);
+                UnityPlayer.UnitySendMessage(AndroidManager, UnitySetResMethod , respond);
+                UnityPlayer.UnitySendMessage(AndroidManager,UnityMethod,everyThing);
+            }
+        } finally{
+            // Always close the cursor when you're done reading from it. This releases all its
+            // resources and makes it invalid.
+            cursor.close();
+        }
     }
 
+    private void getAllQuests(String methodName){
+        UnityMethod = methodName;
+        String[] projection = {
+                QuestEntry._ID,
+                QuestEntry.TYPE,
+                QuestEntry.INDEX,
+                QuestEntry.ATTRIBUTE,
+                QuestEntry.DATE,
+                QuestEntry.DAYOFWEEK,
+                QuestEntry.TEXT,
+                QuestEntry.ISCOMPLETED
+        };
+
+        Cursor cursor = getContentResolver().query(
+                QuestEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                QuestEntry._ID
+        );
+
+        try{
+            int iDIndex = cursor.getColumnIndex(QuestEntry._ID);
+            int typeIndex = cursor.getColumnIndex(QuestEntry.TYPE);
+            int inIndex = cursor.getColumnIndex(QuestEntry.INDEX);
+            int attrIndex = cursor.getColumnIndex(QuestEntry.ATTRIBUTE);
+            int dateIndex = cursor.getColumnIndex(QuestEntry.DATE);
+            int dayofweekIndex = cursor.getColumnIndex(QuestEntry.DAYOFWEEK);
+            int textIndex = cursor.getColumnIndex(QuestEntry.TEXT);
+            int isCompletedIndex = cursor.getColumnIndex(QuestEntry.ISCOMPLETED);
+            while(cursor.moveToNext()){
+                int id = cursor.getInt(iDIndex);
+                UnityPlayer.UnitySendMessage(AndroidManager, "GetQuestIDFromDb" , ""+id);
+                int type = cursor.getInt(typeIndex);
+                UnityPlayer.UnitySendMessage(AndroidManager, "GetQuestTypeFromDb" , ""+type);
+                int index = cursor.getInt(inIndex);
+                UnityPlayer.UnitySendMessage(AndroidManager, "GetQuestIndexFromDb" , ""+index);
+                int attribute = cursor.getInt(attrIndex);
+                UnityPlayer.UnitySendMessage(AndroidManager, "GetQuestAttributeFromDb" , ""+attribute);
+                int date = cursor.getInt(dateIndex);
+                UnityPlayer.UnitySendMessage(AndroidManager, "GetQuestDateFromDb" , ""+date);
+                int dayOfWeek = cursor.getInt(dayofweekIndex);
+                UnityPlayer.UnitySendMessage(AndroidManager, "GetQuestDayOfWeekFromDb" , ""+dayOfWeek);
+                String text = cursor.getString(textIndex);
+                UnityPlayer.UnitySendMessage(AndroidManager, "GetQuestTextFromDb" , text);
+                int isCompleded = cursor.getInt(isCompletedIndex);
+                // TODO: 2018/1/23 读取isCompleted
+                // TODO: 2018/1/23 应传输JSON 数据
+
+                UnityPlayer.UnitySendMessage(AndroidManager,UnityMethod,null);
+            }
+
+        }finally{
+            cursor.close();
+        }
+    }
 
     private void displayCommand(){
 
@@ -183,6 +273,7 @@ public class MainActivity extends UnityPlayerActivity {
         int i = 0;
 
         try{
+
             while(cursor.moveToNext()){
                 i++;
             }
@@ -195,43 +286,33 @@ public class MainActivity extends UnityPlayerActivity {
 
     }
 
-
-    private void insertNewCommand(){
+    private void insertNewCommand(String keyword, String respondWord){
         //mDbHelper = new CommandDbHelper(this);
         //SQLiteDatabase db = mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(CommandEntry.KEYWORD, "123");
+        values.put(CommandEntry.KEYWORD, keyword);
         values.put(CommandEntry.SCENE, "123");
         values.put(CommandEntry.METHOD, "123");
-        values.put(CommandEntry.RESPOND_WORD, "123");
+        values.put(CommandEntry.RESPOND_WORD, respondWord);
         values.put(CommandEntry.CALLED_TIMES, Integer.parseInt("123"));
         values.put(CommandEntry.ANIMATION_TYPE, Integer.parseInt("123"));
         values.put(CommandEntry.ANIMATION_NAME, "123");
         values.put(CommandEntry.ANIMATION_VALUE, Integer.parseInt("123"));
         values.put(CommandEntry.LINK, "123");
         values.put(CommandEntry.COMMENT, "123");
-
-        //long insertId = db.insert(CommandEntry.TABLE_NAME, null, values);
-
         Uri newUri = getContentResolver().insert(CommandEntry.CONTENT_URI, values);
     }
-    /*
-    private void insertNewCommand(final String[] properties){
-        mDbHelper = new CommandDbHelper(this);
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(CommandEntry.KEYWORD, properties[0]);
-        values.put(CommandEntry.SCENE, properties[1]);
-        values.put(CommandEntry.METHOD, properties[2]);
-        values.put(CommandEntry.RESPOND_WORD, properties[3]);
-        values.put(CommandEntry.CALLED_TIMES, Integer.parseInt(properties[4]));
-        values.put(CommandEntry.ANIMATION_TYPE, Integer.parseInt(properties[5]));
-        values.put(CommandEntry.ANIMATION_NAME, properties[6]);
-        values.put(CommandEntry.ANIMATION_VALUE, Integer.parseInt(properties[7]));
-        values.put(CommandEntry.LINK, properties[8]);
-        values.put(CommandEntry.COMMENT, properties[9]);
 
-        long insertId = db.insert(CommandEntry.TABLE_NAME, null, values);
+
+
+    private void insertNewQuest(String para, String text){
+        ContentValues values= new ContentValues();
+        values.put(QuestEntry.TYPE, Integer.parseInt(para.substring(0,1)));
+        values.put(QuestEntry.INDEX, Integer.parseInt(para.substring(1,2)));
+        values.put(QuestEntry.ATTRIBUTE, Integer.parseInt(para.substring(2,3)));
+        values.put(QuestEntry.DATE, Integer.parseInt(para.substring(3,4)));
+        values.put(QuestEntry.DAYOFWEEK, Integer.parseInt(para.substring(4,5)));
+        values.put(QuestEntry.TEXT, text);
     }
-    */
+
 }

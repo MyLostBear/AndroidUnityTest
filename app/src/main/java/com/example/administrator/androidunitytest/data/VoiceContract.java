@@ -36,6 +36,8 @@ public final class VoiceContract {
      */
     public static final String PATH_COMMAND = "command";
 
+    public static final String PATH_QUEST = "quest";
+
     /**
      * Inner class that defines constant values for the commands database table.
      * Each entry in the table represents a single command.
@@ -137,6 +139,37 @@ public final class VoiceContract {
          * Type: TEXT
          */
         public final static String COMMENT = "comment";
+
+    }
+
+    public static final class QuestEntry implements BaseColumns{
+        /** The content URI to access the quest data in the provider */
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_QUEST);
+
+        /** Name of database table for quest */
+        public final static String TABLE_NAME = "quest";
+
+        /**
+         * Unique ID number for the quest (only for use in the database table).
+         *
+         * Type: INTEGER
+         */
+        public final static String _ID = BaseColumns._ID;
+
+        public final static String TYPE = "type";
+
+        public final static String INDEX = "index";
+
+        public final static String ATTRIBUTE = "attribute";
+
+        public final static String DATE = "quest_date";
+
+        public final static String DAYOFWEEK = "day_of_week";
+
+        public final static String TEXT = "quest_text";
+
+        public final static String ISCOMPLETED = "is_completed";
+
 
     }
 }

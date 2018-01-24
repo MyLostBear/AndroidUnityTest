@@ -25,4 +25,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation files('libs/classes.jar')
     implementation files('libs/Msc.jar')
+    implementation files('libs/json-20160810.jar')
+    implementation files('libs/aip-java-sdk-4.1.0.jar')
 }

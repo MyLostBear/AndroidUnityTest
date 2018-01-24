@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.Context;
 import com.example.administrator.androidunitytest.data.VoiceContract.CommandEntry;
+import com.example.administrator.androidunitytest.data.VoiceContract.QuestEntry;
 
 /**
  * Created by ZK on 2018/1/11.
@@ -41,7 +42,20 @@ public class CommandDbHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
+        createCommandTable(db);
+        createQuestTable(db);
+    }
 
+
+    /**
+     * This is called when the database needs to be upgraded.
+     */
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+    }
+
+    public void createCommandTable(SQLiteDatabase db){
         String SQL_CREATE_COMMAND_TABLE = "create table " + CommandEntry.TABLE_NAME + " ("
                 + CommandEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + CommandEntry.KEYWORD + "  TEXT NOT NULL, "
@@ -59,12 +73,17 @@ public class CommandDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_COMMAND_TABLE);
     }
 
-
-    /**
-     * This is called when the database needs to be upgraded.
-     */
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+    public void createQuestTable(SQLiteDatabase db){
+        String SQL_CREATE_QUEST_TABLE = "create table " + QuestEntry.TABLE_NAME + " ("
+                + QuestEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + QuestEntry.TYPE +  " INTEGER NOT NULL DEFAULT 0, "
+                + QuestEntry.INDEX + " INTEGER NOT NULL DEFAULT 0, "
+                + QuestEntry.ATTRIBUTE + " TEXT NOT NULL DEFAULT 0, "
+                + QuestEntry.DATE + " INTEGER NOT NULL DEFAULT 0, "
+                + QuestEntry.DAYOFWEEK + " INTEGER NOT NULL DEFAULT 0, "
+                + QuestEntry.TEXT +  " TEXT NOT NULL, "
+                + QuestEntry.ISCOMPLETED + " INTEGER NOT NULL DEFAULT 0 "
+                +" );";
+        db.execSQL(SQL_CREATE_QUEST_TABLE);
     }
 }

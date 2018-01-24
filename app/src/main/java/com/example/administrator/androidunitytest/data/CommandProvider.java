@@ -12,7 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.example.administrator.androidunitytest.data.VoiceContract.CommandEntry;
+import com.example.administrator.androidunitytest.data.VoiceContract.*;
 
 /**
  * Created by ZK on 2018/1/12.
@@ -31,6 +31,13 @@ public class CommandProvider extends ContentProvider {
 
     /** URI matcher code for the content URI for a single command in the command table by KEYWORD*/
     private static final int COMMAND_KEYWORD = 1002;
+
+    private static final int QUEST_ALL = 2000;
+    private static final int QUEST_ID = 2001;
+    private static final int QUEST_TYPE = 2002;
+    private static final int QUEST_INDEX = 2003;
+    private static final int QUEST_DATE = 2004;
+    private static final int QUEST_DAYOFWEEK = 2005;
 
     /**
      * UriMatcher object to match a content URI to a corresponding code.
@@ -53,6 +60,8 @@ public class CommandProvider extends ContentProvider {
 
         // In this case, the "*" wildcard is used where "*" can be substituted for an string.
         sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY, VoiceContract.PATH_COMMAND + "/*", COMMAND_KEYWORD);
+
+        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY, VoiceContract.PATH_QUEST, QUEST_ALL);
     }
 
 
@@ -86,7 +95,6 @@ public class CommandProvider extends ContentProvider {
                 // projection, selection, selection arguments, and sort order. The cursor
                 // could contain multiple rows of the command table.
 
-
                 cursor = db.query(CommandEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             case COMMAND_ID:
@@ -107,6 +115,9 @@ public class CommandProvider extends ContentProvider {
                 selection = CommandEntry.KEYWORD + "=?";
                 selectionArgs = new String[]{uri.getLastPathSegment()};
                 cursor = db.query(CommandEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            case QUEST_ALL:
+                cursor = db.query(QuestEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
                 break;
             default:
                 throw new IllegalArgumentException("Illegal Uri: " + uri);
@@ -149,6 +160,9 @@ public class CommandProvider extends ContentProvider {
             case COMMAND_ALL:
                 insertCommand(uri, values);
                 break;
+            case QUEST_ALL:
+                insertQuest(uri, values);
+                break;
             default:
                 throw new IllegalArgumentException("Illegal Uri: " + uri);
 
@@ -158,7 +172,7 @@ public class CommandProvider extends ContentProvider {
 
     private Uri insertCommand(Uri uri, ContentValues values){
 
-        // Check that the gender is valid
+        // Check that the keyword is valid
         String keyword = values.getAsString(CommandEntry.KEYWORD);
         if(keyword == null){
             throw new IllegalArgumentException("Keyword can not be NULL");
@@ -179,6 +193,16 @@ public class CommandProvider extends ContentProvider {
         return ContentUris.withAppendedId(uri, id);
     }
 
+    private Uri insertQuest(Uri uri, ContentValues values){
+        SQLiteDatabase db = commandDbHelper.getWritableDatabase();
+        Long id = db.insert(QuestEntry.TABLE_NAME, null, values);
+        if(id == -1) {
+            Log.e(LOG_TAG, "Failed to insert row for" + uri);
+            return null;
+        }
+        return ContentUris.withAppendedId(uri, id);
+    }
+
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
 
@@ -191,6 +215,9 @@ public class CommandProvider extends ContentProvider {
             case COMMAND_ID:
                 break;
             case COMMAND_KEYWORD:
+                break;
+            case QUEST_TYPE:
+                // TODO: 2018/1/19 按照类型删除任务 
                 break;
             default:
                 throw new IllegalArgumentException("Illegal Uri: " + uri);
@@ -211,6 +238,9 @@ public class CommandProvider extends ContentProvider {
             case COMMAND_ID:
                 break;
             case COMMAND_KEYWORD:
+                break;
+            case QUEST_ID:
+                // TODO: 2018/1/19 按照ID更新任务
                 break;
             default:
                 throw new IllegalArgumentException("Illegal Uri: " + uri);
