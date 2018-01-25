@@ -39,6 +39,17 @@ public class CommandProvider extends ContentProvider {
     private static final int QUEST_DATE = 2004;
     private static final int QUEST_DAYOFWEEK = 2005;
 
+    private static final int SENTENCE_ALL = 100;    //查询全部，用于取出所有句子，精准匹配
+    private static final int SENTENCE_ID = 101;     //按ID查询，用于找出回复语的ID
+
+    private static final int KEYWORDS_ALL = 200;    //用于插入新数据
+    private static final int KEYWORDS_TEXT = 202;   //按文本查询关键词
+
+    private static final int RESPONDS_ALL = 300;    //插入新数据
+    private static final int RESPONDS_ID = 301;     //按ID查询回复语
+
+    private static final int KEY_RES_ALL = 400;      //插入新数据
+    private static final int KEY_RES_KEYID = 401;    //根据keyID查询resID
     /**
      * UriMatcher object to match a content URI to a corresponding code.
      * The input passed into the constructor represents the code to return for the root URI.
@@ -62,6 +73,18 @@ public class CommandProvider extends ContentProvider {
         sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY, VoiceContract.PATH_COMMAND + "/*", COMMAND_KEYWORD);
 
         sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY, VoiceContract.PATH_QUEST, QUEST_ALL);
+
+        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_SENTENCE, SENTENCE_ALL);
+        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_SENTENCE + "/#", SENTENCE_ID);
+
+        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_KEYWORDS, KEYWORDS_ALL);
+        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_KEYWORDS+ "/*", KEYWORDS_TEXT);
+
+        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_RESPONDS, RESPONDS_ALL);
+        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_RESPONDS + "/#", RESPONDS_ID);
+
+        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_KEY_RES_MATCH, KEY_RES_ALL);
+        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_KEY_RES_MATCH + "/#", KEY_RES_KEYID);
     }
 
 
@@ -119,11 +142,31 @@ public class CommandProvider extends ContentProvider {
             case QUEST_ALL:
                 cursor = db.query(QuestEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
                 break;
+            case SENTENCE_ALL:
+                cursor = db.query(QuestEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
+            case SENTENCE_ID:
+                selection = SentenceEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                cursor = db.query(SentenceEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
+                break;
+            case KEYWORDS_TEXT:
+                selection = KeywordsEntry.KEYWORD_TEXT + "=?";
+                selectionArgs = new String[]{uri.getLastPathSegment()};
+                cursor = db.query(KeywordsEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            case RESPONDS_ID:
+                selection = RespondsEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                cursor = db.query(RespondsEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
+                break;
+            case KEY_RES_KEYID:
+                selection = KeyResMatchEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                cursor = db.query(KeyResMatchEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
+                break;
             default:
                 throw new IllegalArgumentException("Illegal Uri: " + uri);
-
         }
-
         return cursor;
     }
 
@@ -163,12 +206,65 @@ public class CommandProvider extends ContentProvider {
             case QUEST_ALL:
                 insertQuest(uri, values);
                 break;
+            case SENTENCE_ALL:
+                insertSentence(uri, values);
+                break;
+            case KEYWORDS_ALL:
+                insertKeywords(uri, values);
+                break;
+            case RESPONDS_ALL:
+                insertResponds(uri, values);
+                break;
+            case KEY_RES_ALL:
+                insertKeyResMatch(uri, values);
+                break;
             default:
                 throw new IllegalArgumentException("Illegal Uri: " + uri);
 
         }
         return null;
     }
+
+    private Uri insertSentence(Uri uri, ContentValues values){
+        SQLiteDatabase db = commandDbHelper.getWritableDatabase();
+        long id = db.insert(SentenceEntry.TABLE_NAME, null, values);
+        if(id == -1){
+            Log.e(LOG_TAG, "Failed to insert row for" + uri);
+            return null;
+        }
+        return ContentUris.withAppendedId(uri, id);
+    }
+
+    private Uri insertKeywords(Uri uri, ContentValues values){
+        SQLiteDatabase db = commandDbHelper.getWritableDatabase();
+        long id = db.insert(KeywordsEntry.TABLE_NAME, null, values);
+        if(id == -1){
+            Log.e(LOG_TAG, "Failed to insert row for" + uri);
+            return null;
+        }
+        return ContentUris.withAppendedId(uri, id);
+    }
+
+    private Uri insertResponds(Uri uri, ContentValues values){
+        SQLiteDatabase db = commandDbHelper.getWritableDatabase();
+        long id = db.insert(RespondsEntry.TABLE_NAME, null, values);
+        if(id == -1){
+            Log.e(LOG_TAG, "Failed to insert row for" + uri);
+            return null;
+        }
+        return ContentUris.withAppendedId(uri, id);
+    }
+
+    private Uri insertKeyResMatch(Uri uri, ContentValues values){
+        SQLiteDatabase db = commandDbHelper.getWritableDatabase();
+        long id = db.insert(KeyResMatchEntry.TABLE_NAME, null, values);
+        if(id == -1){
+            Log.e(LOG_TAG, "Failed to insert row for" + uri);
+            return null;
+        }
+        return ContentUris.withAppendedId(uri, id);
+    }
+
 
     private Uri insertCommand(Uri uri, ContentValues values){
 

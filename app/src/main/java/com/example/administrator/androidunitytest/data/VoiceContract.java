@@ -35,8 +35,13 @@ public final class VoiceContract {
      * as the ContentProvider hasn't been given any information on what to do with "staff".
      */
     public static final String PATH_COMMAND = "command";
-
     public static final String PATH_QUEST = "quest";
+    public static final String PATH_SENTENCE = "sentence";    //整句指令表
+    public static final String PATH_KEYWORDS = "keywords";    //关键词表
+    public static final String PATH_RESPONDS = "responds";    //回复语表
+    public static final String PATH_KEY_RES_MATCH = "key_res";   //回复语与关键词关系表
+
+
 
     /**
      * Inner class that defines constant values for the commands database table.
@@ -169,7 +174,41 @@ public final class VoiceContract {
         public final static String TEXT = "quest_text";
 
         public final static String ISCOMPLETED = "is_completed";
+    }
 
+    //整句指令表
+    public static final class SentenceEntry implements BaseColumns{
+        public final static Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_SENTENCE);
+        public final static String TABLE_NAME = "sentence";
+        public final static String _ID = BaseColumns._ID;
+        public final static String SENTENCE_TEXT = "sentence_text";
+        public final static String RES_ID = "res_id";
+    }
 
+    //关键字表
+    public static final class KeywordsEntry implements BaseColumns{
+        public final static Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_KEYWORDS);
+        public final static String TABLE_NAME = "keywords";
+        public final static String _ID = BaseColumns._ID;
+        public final static String KEYWORD_TEXT = "keyword_text";
+        public final static String WEIGHT = "weight";
+    }
+
+    //整句指令表
+    public static final class RespondsEntry implements BaseColumns{
+        public final static Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_RESPONDS);
+        public final static String TABLE_NAME = "responds";
+        public final static String _ID = BaseColumns._ID;
+        public final static String RESPOND_TEXT = "respond_text";
+        public final static String CALLED_TIMES = "called_times";
+    }
+
+    //整句指令表
+    public static final class KeyResMatchEntry implements BaseColumns{
+        public final static Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_KEY_RES_MATCH);
+        public final static String TABLE_NAME = "key_res";
+        public final static String _ID = BaseColumns._ID;
+        public final static String KEY_ID = "key_id";
+        public final static String RES_ID = "res_id";
     }
 }

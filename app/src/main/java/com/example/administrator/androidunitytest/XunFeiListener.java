@@ -2,6 +2,7 @@ package com.example.administrator.androidunitytest;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.example.administrator.androidunitytest.data.ConstantValues;
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.RecognizerListener;
 import com.iflytek.cloud.RecognizerResult;
@@ -18,10 +19,10 @@ import com.unity3d.player.UnityPlayer;
  */
 
 public class XunFeiListener {
-    public static String ID = " = 5a49e627";
+
     public static String voiceResult = "";
     public static void ListenerInit(Context context){
-        SpeechUtility.createUtility(context, SpeechConstant.APPID + ID);
+        SpeechUtility.createUtility(context, SpeechConstant.APPID + ConstantValues.XUNFEI_APP_ID);
     }
 
     public static void VoiceComprehension(Context context){
@@ -57,13 +58,13 @@ public class XunFeiListener {
     private static RecognizerListener mRecoListener = new RecognizerListener() {
         @Override
         public void onVolumeChanged(int i, byte[] bytes) {
-            UnityPlayer.UnitySendMessage(UnityCommunicator.AndroidManager, UnityCommunicator.SHOW_LOG , "正在录音");
+            UnityPlayer.UnitySendMessage(ConstantValues.UnityAndroidManager, ConstantValues.SHOW_LOG , "正在录音");
         }
 
         //开始录音
         @Override
         public void onBeginOfSpeech() {
-            UnityPlayer.UnitySendMessage(UnityCommunicator.AndroidManager, UnityCommunicator.SHOW_LOG , "开始录音");
+            UnityPlayer.UnitySendMessage(ConstantValues.UnityAndroidManager, ConstantValues.SHOW_LOG , "开始录音");
         }
 
         //结束录音
@@ -78,7 +79,8 @@ public class XunFeiListener {
             //public void
             voiceResult = voiceResult +JsonParser.parseIatResult(recognizerResult.getResultString());
             if(b){
-                UnityPlayer.UnitySendMessage(UnityCommunicator.AndroidManager, UnityCommunicator.SHOW_LOG , voiceResult);
+                UnityCommunicator.SendMessageToUnity(ConstantValues.SHOW_LOG, voiceResult);
+                //UnityPlayer.UnitySendMessage(ConstantValues.UnityAndroidManager, ConstantValues.SHOW_LOG , voiceResult);
 
                 voiceResult= "";
             }

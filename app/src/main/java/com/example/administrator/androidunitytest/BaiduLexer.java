@@ -1,5 +1,6 @@
 package com.example.administrator.androidunitytest;
 
+import com.example.administrator.androidunitytest.data.ConstantValues;
 import com.baidu.aip.nlp.AipNlp;
 import com.unity3d.player.UnityPlayer;
 
@@ -13,25 +14,10 @@ import java.util.HashMap;
  */
 
 public class BaiduLexer {
-    //百度应用ID以及密码
-    public static final String APP_ID = "10735065";
-    public static final String API_KEY = "90wH8shoI1rhUZ3OgrEKKKWi";
-    public static final String SECRET_KEY = "GG1x5PTKGaYhzcMzUVT6SK2Wki10FnTN";
-
-    //百度JSON参数名称
-    public static final String ITEMS = "items";     //词汇数组，每个元素对应结果中的一个词
-    public static final String ITEM = "item";       //词汇的字符串
-    public static final String POS = "pos";         //词性，词性标注算法使用。命名实体识别算法中，此项为空串
-    public static final String BASIC_WORD = "basic_words"; //基本词成分
-
-    public static final String SENTIMENT = "sentiment";
-    public static final String POSITIVE_PROB = "positive_prob";
-    public static final String NEGATIVE_PROB = "negative_prob";
-    //百度JSON数据词性参数详情
-    public static final String PUNCTUATION = "w";       //标点符号
 
 
-    public static AipNlp client = new AipNlp(APP_ID, API_KEY, SECRET_KEY);
+
+    public static AipNlp client = new AipNlp(ConstantValues.BAIDU_APP_ID, ConstantValues.BAIDU_API_KEY, ConstantValues.BAIDU_SECRET_KEY);
     public static String text = "";
 
 
@@ -70,10 +56,10 @@ public class BaiduLexer {
     //情感分析
     public static void baiduSentimentParser(JSONObject jsonObject){
         try{
-            JSONArray items = jsonObject.optJSONArray(ITEMS);
+            JSONArray items = jsonObject.optJSONArray(ConstantValues.ITEMS);
             JSONObject item = items.getJSONObject(0);
             //0负向  1中性   2正向
-            int sentiment = item.optInt(SENTIMENT);
+            int sentiment = item.optInt(ConstantValues.SENTIMENT);
             String sentimentText = "";
             switch(sentiment){
                 case 0:
@@ -89,8 +75,8 @@ public class BaiduLexer {
                     sentimentText = "无结果";
                     break;
             }
-            int positive_prob = item.optInt(POSITIVE_PROB);
-            int negative_prob = item.optInt(NEGATIVE_PROB);
+            int positive_prob = item.optInt(ConstantValues.POSITIVE_PROB);
+            int negative_prob = item.optInt(ConstantValues.NEGATIVE_PROB);
 
             // TODO: 2018/1/24 添加数据库处理
             UnityPlayer.UnitySendMessage("AndroidManager", "ShowLog" , sentimentText);
@@ -103,18 +89,18 @@ public class BaiduLexer {
     //分词字符串解析
     public static void baiduLexerPaser(JSONObject jsonObject){
         try{
-            JSONArray itemsArray = jsonObject.optJSONArray(ITEMS);
+            JSONArray itemsArray = jsonObject.optJSONArray(ConstantValues.ITEMS);
             for(int i = 0; i < itemsArray.length(); i++){
                 JSONObject itemsObject = itemsArray.optJSONObject(i);
 
                 //获得词性
-                String pos = itemsObject.optString(POS);
-                String item = itemsObject.optString(ITEM);
+                String pos = itemsObject.optString(ConstantValues.POS);
+                String item = itemsObject.optString(ConstantValues.ITEM);
                 // TODO: 2018/1/24 添加数据库处理
                 System.out.println("一级划分词汇： " + item);
                 //if的作用是屏蔽标点符号
-                if(!pos.equals(PUNCTUATION)) {
-                    JSONArray basic_words = itemsObject.optJSONArray(BASIC_WORD);
+                if(!pos.equals(ConstantValues.PUNCTUATION)) {
+                    JSONArray basic_words = itemsObject.optJSONArray(ConstantValues.BASIC_WORD);
 
                     //if的作用是避免为空
                     if (basic_words != null) {
