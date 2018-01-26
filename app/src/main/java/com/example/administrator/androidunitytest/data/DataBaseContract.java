@@ -7,10 +7,10 @@ import android.provider.BaseColumns;
  * Created by ZK on 2018/1/11.
  */
 
-public final class VoiceContract {
+public final class DataBaseContract {
     // To prevent someone from accidentally instantiating the contract class,
     // give it an empty constructor.
-    private VoiceContract() {}
+    private DataBaseContract() {}
 
     /**
      * The "Content authority" is a name for the entire content provider, similar to the
@@ -163,7 +163,7 @@ public final class VoiceContract {
 
         public final static String TYPE = "type";
 
-        public final static String INDEX = "index";
+        public final static String INDEX = "quest_index";
 
         public final static String ATTRIBUTE = "attribute";
 

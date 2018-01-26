@@ -6,6 +6,10 @@ package com.example.administrator.androidunitytest.data;
  */
 
 public class ConstantValues {
+
+    public static final long DATA_NOT_FOUND = -101;
+
+
     /**
      * Unity
      */
@@ -44,5 +48,14 @@ public class ConstantValues {
     /**
      * Xunfei
      */
-    public static String XUNFEI_APP_ID = " = 5a49e627";
+    public static final String XUNFEI_APP_ID = " = 5a49e627";
+
+    /**
+     * DataBase IDs;
+     */
+    public static long RES_ID_INSERT = -1;
+    public static long KEY_ID_INSERT = -1;
+
+    public static long RES_ID_QUERY = -1;
+    public static long KEY_ID_QUERY = -1;
 }

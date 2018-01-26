@@ -7,12 +7,11 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.speech.tts.Voice;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.example.administrator.androidunitytest.data.VoiceContract.*;
+import com.example.administrator.androidunitytest.data.DataBaseContract.*;
 
 /**
  * Created by ZK on 2018/1/12.
@@ -39,8 +38,9 @@ public class CommandProvider extends ContentProvider {
     private static final int QUEST_DATE = 2004;
     private static final int QUEST_DAYOFWEEK = 2005;
 
-    private static final int SENTENCE_ALL = 100;    //查询全部，用于取出所有句子，精准匹配
-    private static final int SENTENCE_ID = 101;     //按ID查询，用于找出回复语的ID
+    private static final int SENTENCE_ALL = 100;    //查询全部
+    private static final int SENTENCE_ID = 101;     //按ID查询
+    private static final int SENTENCE_TEXT = 102;    //按文本查询，用于找出回复语的ID
 
     private static final int KEYWORDS_ALL = 200;    //用于插入新数据
     private static final int KEYWORDS_TEXT = 202;   //按文本查询关键词
@@ -64,27 +64,29 @@ public class CommandProvider extends ContentProvider {
         // when a match is found.
 
         //This URI is used to provide access to MULTIPLE rows of the command table.
-        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY, VoiceContract.PATH_COMMAND, COMMAND_ALL);
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_COMMAND, COMMAND_ALL);
 
         // In this case, the "#" wildcard is used where "#" can be substituted for an integer.
-        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY, VoiceContract.PATH_COMMAND + "/#", COMMAND_ID);
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_COMMAND + "/#", COMMAND_ID);
 
         // In this case, the "*" wildcard is used where "*" can be substituted for an string.
-        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY, VoiceContract.PATH_COMMAND + "/*", COMMAND_KEYWORD);
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_COMMAND + "/*", COMMAND_KEYWORD);
 
-        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY, VoiceContract.PATH_QUEST, QUEST_ALL);
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_QUEST, QUEST_ALL);
 
-        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_SENTENCE, SENTENCE_ALL);
-        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_SENTENCE + "/#", SENTENCE_ID);
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_SENTENCE, SENTENCE_ALL);
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_SENTENCE + "/#", SENTENCE_ID);
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_SENTENCE + "/*", SENTENCE_TEXT);
 
-        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_KEYWORDS, KEYWORDS_ALL);
-        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_KEYWORDS+ "/*", KEYWORDS_TEXT);
 
-        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_RESPONDS, RESPONDS_ALL);
-        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_RESPONDS + "/#", RESPONDS_ID);
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_KEYWORDS, KEYWORDS_ALL);
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_KEYWORDS+ "/*", KEYWORDS_TEXT);
 
-        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_KEY_RES_MATCH, KEY_RES_ALL);
-        sUriMatcher.addURI(VoiceContract.CONTENT_AUTHORITY,VoiceContract.PATH_KEY_RES_MATCH + "/#", KEY_RES_KEYID);
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_RESPONDS, RESPONDS_ALL);
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_RESPONDS + "/#", RESPONDS_ID);
+
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_KEY_RES_MATCH, KEY_RES_ALL);
+        sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_KEY_RES_MATCH + "/#", KEY_RES_KEYID);
     }
 
 
@@ -143,10 +145,16 @@ public class CommandProvider extends ContentProvider {
                 cursor = db.query(QuestEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
                 break;
             case SENTENCE_ALL:
-                cursor = db.query(QuestEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
+                cursor = db.query(SentenceEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
+                break;
             case SENTENCE_ID:
                 selection = SentenceEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                cursor = db.query(SentenceEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
+                break;
+            case SENTENCE_TEXT:
+                selection = SentenceEntry.SENTENCE_TEXT + "= ? ";
+                selectionArgs = new String[]{uri.getLastPathSegment()};
                 cursor = db.query(SentenceEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
                 break;
             case KEYWORDS_TEXT:
@@ -166,6 +174,7 @@ public class CommandProvider extends ContentProvider {
                 break;
             default:
                 throw new IllegalArgumentException("Illegal Uri: " + uri);
+
         }
         return cursor;
     }
@@ -238,6 +247,8 @@ public class CommandProvider extends ContentProvider {
     private Uri insertKeywords(Uri uri, ContentValues values){
         SQLiteDatabase db = commandDbHelper.getWritableDatabase();
         long id = db.insert(KeywordsEntry.TABLE_NAME, null, values);
+        // FIXME: 2018/1/26 此处应通过返回值返回ID，而非给KEY_ID赋值
+        ConstantValues.KEY_ID_INSERT = id;
         if(id == -1){
             Log.e(LOG_TAG, "Failed to insert row for" + uri);
             return null;
@@ -248,6 +259,8 @@ public class CommandProvider extends ContentProvider {
     private Uri insertResponds(Uri uri, ContentValues values){
         SQLiteDatabase db = commandDbHelper.getWritableDatabase();
         long id = db.insert(RespondsEntry.TABLE_NAME, null, values);
+        // FIXME: 2018/1/26 此处应通过返回值返回ID，而非给RES_ID赋值
+        ConstantValues.RES_ID_INSERT = id;
         if(id == -1){
             Log.e(LOG_TAG, "Failed to insert row for" + uri);
             return null;

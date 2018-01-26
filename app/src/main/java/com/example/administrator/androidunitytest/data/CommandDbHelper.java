@@ -3,7 +3,7 @@ package com.example.administrator.androidunitytest.data;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.Context;
-import com.example.administrator.androidunitytest.data.VoiceContract.*;
+import com.example.administrator.androidunitytest.data.DataBaseContract.*;
 
 /**
  * Created by ZK on 2018/1/11.
@@ -74,6 +74,7 @@ public class CommandDbHelper extends SQLiteOpenHelper {
                 +" );";
 
         db.execSQL(SQL_CREATE_COMMAND_TABLE);
+        System.out.println("指令表建立完成");
     }
 
     public void createQuestTable(SQLiteDatabase db){
@@ -88,6 +89,7 @@ public class CommandDbHelper extends SQLiteOpenHelper {
                 + QuestEntry.ISCOMPLETED + " INTEGER NOT NULL DEFAULT 0 "
                 +" );";
         db.execSQL(SQL_CREATE_QUEST_TABLE);
+        System.out.println("任务表建立完成");
     }
 
     public void createSentenceTable(SQLiteDatabase db){
@@ -97,6 +99,7 @@ public class CommandDbHelper extends SQLiteOpenHelper {
                 + SentenceEntry.RES_ID + " INTEGER NOT NULL "
                 +" );";
         db.execSQL(SQL_CREATE_SENTENCE_TABLE);
+        System.out.println("整句表建立完成");
     }
 
     public void createKeywordsTable(SQLiteDatabase db){
@@ -106,6 +109,7 @@ public class CommandDbHelper extends SQLiteOpenHelper {
                 + KeywordsEntry.WEIGHT + " INTEGER NOT NULL DEFAULT 1 "
                 +" );";
         db.execSQL(SQL_CREATE_KEYWORDS_TABLE);
+        System.out.println("关键字表建立完成");
     }
 
     public void createRespondsTable(SQLiteDatabase db){
@@ -115,6 +119,7 @@ public class CommandDbHelper extends SQLiteOpenHelper {
                 + RespondsEntry.CALLED_TIMES + " INTEGER NOT NULL DEFAULT 1 "
                 +" );";
         db.execSQL(SQL_CREATE_RESPONDS_TABLE);
+        System.out.println("回复表建立完成");
     }
 
     public void createKeyResMatchTable(SQLiteDatabase db){
@@ -124,6 +129,7 @@ public class CommandDbHelper extends SQLiteOpenHelper {
                 + KeyResMatchEntry.RES_ID + " INTEGER NOT NULL "
                 +" );";
         db.execSQL(SQL_CREATE_KEY_RES_MATCH_TABLE);
+        System.out.println("对照表建立完成");
     }
 
 }

@@ -2,6 +2,7 @@ package com.example.administrator.androidunitytest;
 
 import com.example.administrator.androidunitytest.data.ConstantValues;
 import com.baidu.aip.nlp.AipNlp;
+import com.example.administrator.androidunitytest.data.TempGlobalValues;
 import com.unity3d.player.UnityPlayer;
 
 import org.json.JSONArray;
@@ -90,12 +91,19 @@ public class BaiduLexer {
     public static void baiduLexerPaser(JSONObject jsonObject){
         try{
             JSONArray itemsArray = jsonObject.optJSONArray(ConstantValues.ITEMS);
+            TempGlobalValues.gKeywordsValues = null;   //将全局关键词列表清空，准备接收新数据
             for(int i = 0; i < itemsArray.length(); i++){
                 JSONObject itemsObject = itemsArray.optJSONObject(i);
 
                 //获得词性
                 String pos = itemsObject.optString(ConstantValues.POS);
                 String item = itemsObject.optString(ConstantValues.ITEM);
+
+                //如果不重复，将一级分词加入临时全局关键词列表，为接下来的数据库操作做准备
+                if(!TempGlobalValues.gKeywordsValues.contains(item)){
+                    TempGlobalValues.gKeywordsValues.add(item);
+                }
+
                 // TODO: 2018/1/24 添加数据库处理
                 System.out.println("一级划分词汇： " + item);
                 //if的作用是屏蔽标点符号
@@ -107,6 +115,10 @@ public class BaiduLexer {
                         for (int j = 0; j < basic_words.length(); j++) {
                             String basic_word = basic_words.getString(j);
                             // TODO: 2018/1/24 添加数据库处理
+                            //如果不重复，将二级分词加入临时全局关键词列表，为接下来的数据库操作做准备
+                            if(!TempGlobalValues.gKeywordsValues.contains(basic_word)){
+                                TempGlobalValues.gKeywordsValues.add(basic_word);
+                            }
                             System.out.println("二级划分词汇： "+basic_word);
                         }
                     }
