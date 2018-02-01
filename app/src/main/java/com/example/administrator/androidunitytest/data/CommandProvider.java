@@ -78,7 +78,6 @@ public class CommandProvider extends ContentProvider {
         sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_SENTENCE + "/#", SENTENCE_ID);
         sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_SENTENCE + "/*", SENTENCE_TEXT);
 
-
         sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_KEYWORDS, KEYWORDS_ALL);
         sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_KEYWORDS+ "/*", KEYWORDS_TEXT);
 
@@ -88,8 +87,6 @@ public class CommandProvider extends ContentProvider {
         sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_KEY_RES_MATCH, KEY_RES_ALL);
         sUriMatcher.addURI(DataBaseContract.CONTENT_AUTHORITY, DataBaseContract.PATH_KEY_RES_MATCH + "/#", KEY_RES_KEYID);
     }
-
-
 
     /** Database helper object */
     private CommandDbHelper commandDbHelper;
@@ -168,7 +165,7 @@ public class CommandProvider extends ContentProvider {
                 cursor = db.query(RespondsEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
                 break;
             case KEY_RES_KEYID:
-                selection = KeyResMatchEntry._ID + "=?";
+                selection = KeyResMatchEntry.KEY_ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 cursor = db.query(KeyResMatchEntry.TABLE_NAME, projection,selection, selectionArgs,null,null,sortOrder);
                 break;
@@ -278,7 +275,6 @@ public class CommandProvider extends ContentProvider {
         return ContentUris.withAppendedId(uri, id);
     }
 
-
     private Uri insertCommand(Uri uri, ContentValues values){
 
         // Check that the keyword is valid
@@ -330,7 +326,6 @@ public class CommandProvider extends ContentProvider {
                 break;
             default:
                 throw new IllegalArgumentException("Illegal Uri: " + uri);
-
         }
         return 0;
     }
@@ -342,6 +337,14 @@ public class CommandProvider extends ContentProvider {
         int matchCode = sUriMatcher.match(uri);
 
         switch (matchCode){
+            case RESPONDS_ID:
+                //根据ID更新数据
+                selection = RespondsEntry._ID + "=?";
+                selectionArgs = new String[]{
+                        String.valueOf(ContentUris.parseId(uri))
+                };
+                updateRes(uri, values, selection, selectionArgs);
+                break;
             case COMMAND_ALL:
                 break;
             case COMMAND_ID:
@@ -353,8 +356,16 @@ public class CommandProvider extends ContentProvider {
                 break;
             default:
                 throw new IllegalArgumentException("Illegal Uri: " + uri);
-
         }
         return 0;
+    }
+
+    private int updateRes(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs){
+
+
+        SQLiteDatabase db = commandDbHelper.getWritableDatabase();
+        System.out.println("更新数据库已经打开");
+        return db.update(RespondsEntry.TABLE_NAME, values, selection, selectionArgs);
+
     }
 }

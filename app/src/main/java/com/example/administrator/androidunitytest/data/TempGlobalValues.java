@@ -1,5 +1,6 @@
 package com.example.administrator.androidunitytest.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -7,5 +8,5 @@ import java.util.List;
  */
 
 public class TempGlobalValues {
-    public static List<String> gKeywordsValues;
+    public static List<String> gKeywordsValues = new ArrayList<String>();
 }

@@ -1,6 +1,9 @@
 package com.example.administrator.androidunitytest;
 
+import com.example.administrator.androidunitytest.data.ConstantValues;
+
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -8,6 +11,25 @@ import org.json.JSONTokener;
  * Json结果解析类
  */
 public class JsonParser {
+
+	//解析由Unity传来的对话，返回一个string数组，第一条为问句，第二条为回答
+	public static String[] parseUnityDialog(String json){
+		System.out.println("接收到由Unity传来的新DialogJSon语句，Json内容为: " + json);
+		String queText = "";
+		String resText = "";
+		try{
+			JSONTokener tokener  = new JSONTokener(json);
+			JSONObject joResult = new JSONObject(tokener);
+			queText = joResult.optString(ConstantValues.UNITY_JSON_QUESTION);
+			resText = joResult.optString(ConstantValues.UNITY_JSON_RESPOND);
+			System.out.println("已经解析Json语句: " + queText + resText);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} finally {
+			String[] dialog = {queText,resText};
+			return dialog;
+		}
+	}
 
 	public static String parseIatResult(String json) {
 		StringBuffer ret = new StringBuffer();

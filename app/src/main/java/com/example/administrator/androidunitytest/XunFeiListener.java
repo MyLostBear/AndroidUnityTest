@@ -19,17 +19,13 @@ import com.unity3d.player.UnityPlayer;
  */
 
 public class XunFeiListener {
-
     public static String voiceResult = "";
+    public static String unityReturnMethodName = "";
+    public static SpeechRecognizer mIat;
     public static void ListenerInit(Context context){
         SpeechUtility.createUtility(context, SpeechConstant.APPID + ConstantValues.XUNFEI_APP_ID);
-    }
-
-    public static void VoiceComprehension(Context context){
-
-
         //创建recognizer对象，第二个参数：本地听写传入一个InitListener
-        SpeechRecognizer mIat = SpeechRecognizer.createRecognizer(context, null);
+        mIat = SpeechRecognizer.createRecognizer(context, null);
 
         //设置参数
         mIat.setParameter(SpeechConstant.DOMAIN, "iat");
@@ -51,20 +47,24 @@ public class XunFeiListener {
         mIat.setParameter(SpeechConstant.ASR_PTT, "0");
         //是否动态修正结果， 1为动态
         mIat.setParameter(SpeechConstant.ASR_DWA, "0");
+    }
+
+    public static void VoiceComprehension(Context context, String unityMtehodName){
+        unityReturnMethodName = unityMtehodName;
         mIat.startListening(mRecoListener);
     }
 
-    //监听器
+    //听写监听器
     private static RecognizerListener mRecoListener = new RecognizerListener() {
         @Override
         public void onVolumeChanged(int i, byte[] bytes) {
-            UnityPlayer.UnitySendMessage(ConstantValues.UnityAndroidManager, ConstantValues.SHOW_LOG , "正在录音");
+            //UnityPlayer.UnitySendMessage(ConstantValues.UnityAndroidManager, ConstantValues.SHOW_LOG , "正在录音");
         }
 
         //开始录音
         @Override
         public void onBeginOfSpeech() {
-            UnityPlayer.UnitySendMessage(ConstantValues.UnityAndroidManager, ConstantValues.SHOW_LOG , "开始录音");
+            //UnityPlayer.UnitySendMessage(ConstantValues.UnityAndroidManager, ConstantValues.SHOW_LOG , "开始录音");
         }
 
         //结束录音
@@ -79,13 +79,16 @@ public class XunFeiListener {
             //public void
             voiceResult = voiceResult +JsonParser.parseIatResult(recognizerResult.getResultString());
             if(b){
-                UnityCommunicator.SendMessageToUnity(ConstantValues.SHOW_LOG, voiceResult);
-                //UnityPlayer.UnitySendMessage(ConstantValues.UnityAndroidManager, ConstantValues.SHOW_LOG , voiceResult);
-
-                voiceResult= "";
+                /*
+                听写完成，调用Unity的方法返回字符串
+                 */
+                if (voiceResult == "") {
+                    UnityCommunicator.SendMessageToUnity(ConstantValues.UNITY_RECORD_NOTHING, voiceResult);
+                }else {
+                    UnityCommunicator.SendMessageToUnity(unityReturnMethodName, voiceResult);
+                    voiceResult= "";  //重置为空
+                }
             }
-
-
         }
 
         @Override

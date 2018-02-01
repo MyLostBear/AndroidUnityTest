@@ -1,34 +1,69 @@
 package com.example.administrator.androidunitytest;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.example.administrator.androidunitytest.data.ConstantValues;
+import com.example.administrator.androidunitytest.data.TempGlobalValues;
 import com.unity3d.player.UnityPlayerActivity;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class MainActivity extends UnityPlayerActivity {
 
     private DataBaseManager DBM;
-
+    public static MainActivity mainActivity = null;
+    private SharedPreferences preferences;
+    private SharedPreferences.Editor editor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mainActivity = this;
+        preferences = getPreferences(Activity.MODE_PRIVATE);
         //初始化讯飞语音配置对象
         XunFeiListener.ListenerInit(getApplicationContext());
 
         BaiduLexer.baiduClientInit();
 
         DBM = new DataBaseManager(this);
+
+        System.out.println("这里是MainActivity的OnCreate方法！！");
     }
 
 
-    private void Comprehension(){
-        XunFeiListener.VoiceComprehension(getApplicationContext());
+
+    //由Unity调用，使用讯飞进行听写，参数表示结果交还给哪个Unity方法
+    private void Comprehension(String unityMethodName){
+        XunFeiListener.VoiceComprehension(getApplicationContext(), unityMethodName);
     }
 
+    //由Unity调用，使用数据库进行语意分析
+    private void sentenceParse(String sentenceText){
+//        insertDefauleData();   //查看是否需要插入默认数据
+        DBM.logParse(sentenceText);
+    }
+
+
+    //暂时由Unity调用，使用讯飞对回复语进行朗读
     private void Speech(String speechText){
         XunFeiListener.VoiceSpeech(getApplicationContext(), speechText);
     }
+
+
+
+
+
+
+
+
+
+
+
+
     public void ST(final String msg){
         runOnUiThread(new Runnable() {
             @Override
@@ -38,11 +73,9 @@ public class MainActivity extends UnityPlayerActivity {
         });
     }
 
-
     /**
      * 以下为数据库处理部分
      */
-
     private void getSimpleCommand(String methodName){
        DBM.getSimpleCommand(methodName);
     }
@@ -56,19 +89,20 @@ public class MainActivity extends UnityPlayerActivity {
     }
 
     private void insertNewCommand(String keyword, String respondWord){
-        DBM.insertNewQuest(keyword,respondWord);
+        //DBM.insertNewQuest(keyword,respondWord);
     }
 
+    /*暂时无用
     private void insertNewQuest(String para, String text){
         DBM.insertNewQuest(para, text);
     }
+    */
 
 
-    private void sentenceParse(String sentenceText){
-        DBM.logParse(sentenceText);
+
+    private void PopDialogView(){
+        // TODO: 2018/2/1 从数据库中取出每一条Dialog数据，并依次调用Unity端的GetOneDialog方法，将每一条数据插入DialogView
     }
-
-
 
 
 
@@ -91,23 +125,28 @@ public class MainActivity extends UnityPlayerActivity {
         return DBM.insertNewResponds(respondText);
     }
 
-    //New Database Test
-    private void insertDummyData(){
+    /*
+    本方法用于第一次打开游戏时安装默认数据
+    */
+    public void insertDefauleData(){
+        Boolean isDefaultDataInserted = preferences.getBoolean("isInserted", false);
+        if(!isDefaultDataInserted){   //如果尚未安装默认数据
 
-        String resText = "It's just a drill~";
-        String sentence = "THIS IS NOT A DRILL";
-        long res_id = insertNewResponds(resText);
-        insertNewSentence(sentence, res_id);
-        insertNewKeywords("THIS", 1, res_id);
-        insertNewKeywords("IS", 1, res_id);
-        insertNewKeywords("NOT", 1, res_id);
-        insertNewKeywords("A", 1, res_id);
-        insertNewKeywords("DRILL", 1, res_id);
-
-        sentenceParse("THIS IS NOT A DRILL");
-        sentenceParse("好好学习天天向上，快使用双截棍哼哼哈嘿！");
-
+            DBM.insertDefaultData();   //则安装默认数据
+            editor = preferences.edit();
+            editor.putBoolean("isInserted", true);    //并告知系统“已经安装默认数据”
+            editor.apply();  //确认提交
+        }
     }
 
-
+    //学习新的语句
+    private void learnNewDialog(String dialogText){
+        String[] dialog = JsonParser.parseUnityDialog(dialogText);
+        String queText = dialog[0]; //玩家问句
+        String resText = dialog[1]; //应答语句
+        System.out.println("已经完成Json分析,提取出两句: " + queText);
+        System.out.println("以及： " + resText);
+        long res_id = insertNewResponds(resText);
+        insertNewSentence(queText, res_id);
+    }
 }

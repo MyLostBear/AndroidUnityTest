@@ -3,6 +3,9 @@ package com.example.administrator.androidunitytest.data;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.Context;
+
+import com.example.administrator.androidunitytest.DataBaseManager;
+import com.example.administrator.androidunitytest.MainActivity;
 import com.example.administrator.androidunitytest.data.DataBaseContract.*;
 
 /**
@@ -40,13 +43,14 @@ public class CommandDbHelper extends SQLiteOpenHelper {
      * This is called when the database is created for the FIRST TIME.
      */
     @Override
-    public void onCreate(SQLiteDatabase db) {
-        createCommandTable(db);
-        createQuestTable(db);
-        createSentenceTable(db);
-        createKeywordsTable(db);
-        createRespondsTable(db);
-        createKeyResMatchTable(db);
+    public void onCreate(SQLiteDatabase DataBase) {
+        createCommandTable(DataBase);
+        createQuestTable(DataBase);
+        createSentenceTable(DataBase);
+        createKeywordsTable(DataBase);
+        createRespondsTable(DataBase);
+        createKeyResMatchTable(DataBase);
+        //MainActivity.mainActivity.insertDefauleData();
     }
 
 
@@ -57,6 +61,8 @@ public class CommandDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
     }
+
+
 
     public void createCommandTable(SQLiteDatabase db){
         String SQL_CREATE_COMMAND_TABLE = "create table " + CommandEntry.TABLE_NAME + " ("
@@ -116,7 +122,8 @@ public class CommandDbHelper extends SQLiteOpenHelper {
         String SQL_CREATE_RESPONDS_TABLE = "create table " +RespondsEntry.TABLE_NAME + " ("
                 + RespondsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + RespondsEntry.RESPOND_TEXT +  " TEXT NOT NULL, "
-                + RespondsEntry.CALLED_TIMES + " INTEGER NOT NULL DEFAULT 1 "
+                + RespondsEntry.CALLED_TIMES + " INTEGER NOT NULL DEFAULT 1, "
+                + RespondsEntry.KEYWORDS_NUMS + " INTEGER NOT NULL DEFAULT 1 "
                 +" );";
         db.execSQL(SQL_CREATE_RESPONDS_TABLE);
         System.out.println("回复表建立完成");

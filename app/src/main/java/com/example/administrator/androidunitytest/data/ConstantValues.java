@@ -8,7 +8,7 @@ package com.example.administrator.androidunitytest.data;
 public class ConstantValues {
 
     public static final long DATA_NOT_FOUND = -101;
-
+    public static final float KEYWORD_MATCH_THRESHOLD = 0.65f;   //关键词匹配阈值，大于此值认为匹配
 
     /**
      * Unity
@@ -20,9 +20,31 @@ public class ConstantValues {
     public static String SHOW_LOG = "ShowLog";
 
 
-    public static String UnitySetKeyMethod = "GetKeyFromDB";
-    public static String UnitySetResMethod = "GetResFromDB";
+    //对话missmatch时所需要调用的Unity方法名
+    public static String UNITY_DIALOG_MISSMATCH = "MissMatch";
 
+    public static String UNITY_SET_KEY_METHOD = "GetKeyFromDB";
+    public static String UNITY_SET_RES_METHOD = "GetResFromDB";
+
+    public static String UNITY_RES_RECEIVER = "RespondShow";
+
+    public static String[] MISMATCH_RESPONDS = {
+            "听不明白你说的话，要教我怎么回答吗？",
+            "嘿嘿，不好意思，没听明白你说的是什么。",
+            "对不起啦，我没听懂。",
+            "唉，我还没办法理解这么复杂的人类语言，要不你再教教我？",
+            "真的不明白，抱歉。",
+            "又没听懂，对不起啦。",
+            "人工智能表示，自己还没有这么智能，请继续调教。",
+            "信息量太大，不明白。",
+            "不懂啊，真的不懂……"
+    };
+    public static String UNITY_DEFAULT_REPLY = "听不明白你说的话，要教我怎么回答吗？";
+
+    public static String UNITY_JSON_QUESTION = "speechText";   //Unity传来的Dialog Json中，问句的名字
+    public static String UNITY_JSON_RESPOND = "respondText";     //Unity传来的Dialog Json中，回答的名字
+
+    public static String UNITY_RECORD_NOTHING = "NoSoundListened";
 
 
     /**
@@ -58,4 +80,6 @@ public class ConstantValues {
 
     public static long RES_ID_QUERY = -1;
     public static long KEY_ID_QUERY = -1;
+
+    public static int QUERY_FROM_SENTENCE = -1;   //表示整句匹配，不需要进行阈值计算
 }

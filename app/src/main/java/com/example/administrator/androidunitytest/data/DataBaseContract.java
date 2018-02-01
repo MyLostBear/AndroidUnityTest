@@ -201,6 +201,7 @@ public final class DataBaseContract {
         public final static String _ID = BaseColumns._ID;
         public final static String RESPOND_TEXT = "respond_text";
         public final static String CALLED_TIMES = "called_times";
+        public final static String KEYWORDS_NUMS = "keywords_nums";
     }
 
     //整句指令表
