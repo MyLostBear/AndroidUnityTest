@@ -12,6 +12,9 @@ import com.unity3d.player.UnityPlayerActivity;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import static com.example.administrator.androidunitytest.UnityCommunicator.SendMessageToUnity;
 
 public class MainActivity extends UnityPlayerActivity {
 
@@ -102,8 +105,20 @@ public class MainActivity extends UnityPlayerActivity {
 
     private void PopDialogView(){
         // TODO: 2018/2/1 从数据库中取出每一条Dialog数据，并依次调用Unity端的GetOneDialog方法，将每一条数据插入DialogView
+        DBM.queryAllDialog(); //获取所有对话
+        System.out.println("已获取全部对话");
+        //依次打包为Json，并转存给Unity
+        for (Map.Entry dialog:
+             ConstantValues.DIALOGS.entrySet()) {
+            System.out.println("问句是： "+dialog.getKey().toString());
+            System.out.println("回答是： "+dialog.getValue().toString());
+            String dialogJson = JsonParser.packDialog(dialog.getKey().toString(), dialog.getValue().toString());
+            System.out.println(dialogJson);
+            SendMessageToUnity(ConstantValues.UNITY_GET_ONE_DIALOG,dialogJson);
+            //System.out.println("存入一句");
+        }
+        //SendMessageToUnity(ConstantValues.UNITY_POP_DIALOG_VIEW,null);
     }
-
 
 
 
@@ -121,8 +136,9 @@ public class MainActivity extends UnityPlayerActivity {
         DBM.insertNewKeywords(keywordText, weight, res_id);
     }
 
+    //新插入，type为1
     private long insertNewResponds(String respondText){
-        return DBM.insertNewResponds(respondText);
+        return DBM.insertNewResponds(respondText, 1);
     }
 
     /*

@@ -1,5 +1,7 @@
 package com.example.administrator.androidunitytest.data;
 
+import java.util.HashMap;
+
 /**
  * Created by ZK on 2018/1/25.
  * All the constantValues except DataBase contract store in this class.
@@ -8,7 +10,7 @@ package com.example.administrator.androidunitytest.data;
 public class ConstantValues {
 
     public static final long DATA_NOT_FOUND = -101;
-    public static final float KEYWORD_MATCH_THRESHOLD = 0.65f;   //关键词匹配阈值，大于此值认为匹配
+    public static final float KEYWORD_MATCH_THRESHOLD = 0.8f;   //关键词匹配阈值，大于此值认为匹配
 
     /**
      * Unity
@@ -16,9 +18,18 @@ public class ConstantValues {
     //调用unity时所要找的unity的GameObject
     public static String UnityAndroidManager = "AndroidManager";
 
+    //unity获取一条dialog
+    public static String UNITY_GET_ONE_DIALOG = "GetOneDialog";
+
+    //unity填充dialogView
+    public static String UNITY_POP_DIALOG_VIEW = "PopDialogView";
+
     //调用unity时所要找的unity的方法
     public static String SHOW_LOG = "ShowLog";
 
+    //unity DialogData类的两个字段
+    public static String UNITY_DIALOG_SPEECH = "speechText";
+    public static String UNITY_DIALOG_RESPOND = "respondText";
 
     //对话missmatch时所需要调用的Unity方法名
     public static String UNITY_DIALOG_MISSMATCH = "MissMatch";
@@ -27,6 +38,8 @@ public class ConstantValues {
     public static String UNITY_SET_RES_METHOD = "GetResFromDB";
 
     public static String UNITY_RES_RECEIVER = "RespondShow";
+
+
 
     public static String[] MISMATCH_RESPONDS = {
             "听不明白你说的话，要教我怎么回答吗？",
@@ -82,4 +95,10 @@ public class ConstantValues {
     public static long KEY_ID_QUERY = -1;
 
     public static int QUERY_FROM_SENTENCE = -1;   //表示整句匹配，不需要进行阈值计算
+    public static int QUERY_FROM_SENTENCE_BY_TYPE = -2;  //表示整句匹配，不需要进行阈值计算，且丢弃掉非用户输入的数据
+
+    /**
+     * Data
+     */
+    public static HashMap<String, String> DIALOGS = new HashMap<>();   //用于储存所有从数据库里取出的对话数据
 }

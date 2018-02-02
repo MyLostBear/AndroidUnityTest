@@ -12,6 +12,22 @@ import org.json.JSONTokener;
  */
 public class JsonParser {
 
+	//将一对应答封装为Json数据
+	public static String packDialog(String questionText, String respondText){
+		//String dialogJson = "";
+		JSONObject dialog = new JSONObject();
+		try {
+			dialog.put(ConstantValues.UNITY_DIALOG_SPEECH,questionText);
+			dialog.put(ConstantValues.UNITY_DIALOG_RESPOND,respondText);
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}finally {
+			return dialog.toString();
+		}
+	}
+
+
 	//解析由Unity传来的对话，返回一个string数组，第一条为问句，第二条为回答
 	public static String[] parseUnityDialog(String json){
 		System.out.println("接收到由Unity传来的新DialogJSon语句，Json内容为: " + json);

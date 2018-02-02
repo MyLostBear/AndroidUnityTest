@@ -3,6 +3,7 @@ package com.example.administrator.androidunitytest;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseErrorHandler;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
@@ -331,7 +332,7 @@ public class DataBaseManager {
         Dialogs.put("你好好听着","我认真听着呢。");
         Dialogs.put("我现在教你","好的，你说吧。");
         Dialogs.put("不懂就问。","恩，好的。");
-        Dialogs.put("你好棒，这么快就学会了。","不知道啊，你可以查查地图。");
+        Dialogs.put("你好棒，这么快就学会了。","承蒙夸奖，我会继续努力的。");
         Dialogs.put("你好聪明","是啊，我像你，本来就很聪明的。");
         Dialogs.put("你挺聪明","那当然，我就是你啊。");
         Dialogs.put("你真聪明","我就是你，你夸我就是在夸自己哦。");
@@ -362,7 +363,7 @@ public class DataBaseManager {
                 Dialogs.entrySet()) {
             question = entry.getKey();
             respond = entry.getValue();
-            long res_id = insertNewResponds(respond);
+            long res_id = insertNewResponds(respond, 0);
             insertNewSentence(question, res_id);
         }
     }
@@ -423,11 +424,13 @@ public class DataBaseManager {
     }
 
     //插入回复语，返回返回语主键
-    public long insertNewResponds(String respondText){
+    public long insertNewResponds(String respondText,int respond_type){
         ContentValues values = new ContentValues();
         values.put(DataBaseContract.RespondsEntry.RESPOND_TEXT, respondText);
         values.put(DataBaseContract.RespondsEntry.CALLED_TIMES, 0);   //首次插入，调用0次
         values.put(DataBaseContract.RespondsEntry.KEYWORDS_NUMS, 0);
+        values.put(DataBaseContract.RespondsEntry.RESPOND_TYPE, respond_type);
+        System.out.println("新插入，类型为:" +respond_type );
         currentContext.getContentResolver().insert(DataBaseContract.RespondsEntry.CONTENT_URI, values);
         long res_id = ConstantValues.RES_ID_INSERT;   //获得id
         //System.out.println("Respond insert completed");
@@ -447,6 +450,45 @@ public class DataBaseManager {
     /**
      * 查询操作
      */
+    //查找全部对话，将整句问话和整句回答封装进一个hashmap
+    public void queryAllDialog(){
+        String[] projection = {
+        DataBaseContract.SentenceEntry.SENTENCE_TEXT,
+        DataBaseContract.SentenceEntry.RES_ID};
+
+        Cursor cursor = currentContext.getContentResolver().query(
+                DataBaseContract.SentenceEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null
+        );
+
+        try {
+            int textIndex = cursor.getColumnIndex(DataBaseContract.SentenceEntry.SENTENCE_TEXT);
+            int residIndex = cursor.getColumnIndex(DataBaseContract.SentenceEntry.RES_ID);
+            while(cursor.moveToNext()){
+                String sentenceText = cursor.getString(textIndex);
+                int res_id = cursor.getInt(residIndex);
+                String respondText = queryResponse(res_id,ConstantValues.QUERY_FROM_SENTENCE_BY_TYPE);
+                if(respondText == ""){   //返回为空表示为系统输入，跳出本次循环
+                    System.out.println("输出为空");
+                    continue;
+                }
+                ConstantValues.DIALOGS.put(sentenceText,respondText);
+                System.out.println("取出的两句话分别是：");
+                System.out.println(sentenceText);
+                System.out.println("以及：");
+                System.out.println(respondText);
+            }
+
+        }finally {
+
+            cursor.close();
+        }
+    }
+
+
     //精准匹配，输入整句，返回respond的id
     public long querySentence(String sentenceText){
         String[] projection = {
@@ -554,15 +596,18 @@ public class DataBaseManager {
     }
 
 
+
     //按ID查询回复语，返回回复语文本
     public String queryResponse(long res_id ,int para){
         String respondText = "";
         int keywords_nums = 0;
         int called_times = 0;
+        int res_type = 0;
         String[] projection = {
                 DataBaseContract.RespondsEntry.RESPOND_TEXT,
                 DataBaseContract.RespondsEntry.CALLED_TIMES,
-                DataBaseContract.RespondsEntry.KEYWORDS_NUMS
+                DataBaseContract.RespondsEntry.KEYWORDS_NUMS,
+                DataBaseContract.RespondsEntry.RESPOND_TYPE
         };
         Cursor cursor = currentContext.getContentResolver().query(
             Uri.withAppendedPath(DataBaseContract.RespondsEntry.CONTENT_URI, String.valueOf(res_id)),
@@ -575,14 +620,25 @@ public class DataBaseManager {
             int res_text_index = cursor.getColumnIndex(DataBaseContract.RespondsEntry.RESPOND_TEXT);
             int called_times_index = cursor.getColumnIndex(DataBaseContract.RespondsEntry.CALLED_TIMES);
             int keywords_nums_index = cursor.getColumnIndex(DataBaseContract.RespondsEntry.KEYWORDS_NUMS);
+            int res_type_index = cursor.getColumnIndex(DataBaseContract.RespondsEntry.RESPOND_TYPE);
             if(cursor.moveToNext()){
 
                     keywords_nums = cursor.getInt(keywords_nums_index);   //获得keywords数量
                     called_times = cursor.getInt(called_times_index);      //获得被调用次数
-
+                    res_type = cursor.getInt(res_type_index);              //获得“是用户输入还是系统输入”
+                    System.out.println("回复语类型为：" + res_type);
                     if(para == ConstantValues.QUERY_FROM_SENTENCE){
                         respondText = cursor.getString(res_text_index);
-                    }else {
+                    }else if(para == ConstantValues.QUERY_FROM_SENTENCE_BY_TYPE){   //系统输入返回空
+                        if(res_type == 0){
+                            System.out.println(respondText);
+                            respondText = "";
+                        }else
+                        {
+                            respondText = cursor.getString(res_text_index);
+                        }
+                    }
+                    else {
                         float matchRate = (float)para/keywords_nums;
                         if(matchRate >= ConstantValues.KEYWORD_MATCH_THRESHOLD){
                             respondText = cursor.getString(res_text_index);

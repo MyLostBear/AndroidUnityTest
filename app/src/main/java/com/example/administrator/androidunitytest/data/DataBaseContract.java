@@ -202,6 +202,7 @@ public final class DataBaseContract {
         public final static String RESPOND_TEXT = "respond_text";
         public final static String CALLED_TIMES = "called_times";
         public final static String KEYWORDS_NUMS = "keywords_nums";
+        public final static String RESPOND_TYPE = "respond_type";
     }
 
     //整句指令表

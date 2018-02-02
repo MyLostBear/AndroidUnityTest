@@ -123,7 +123,8 @@ public class CommandDbHelper extends SQLiteOpenHelper {
                 + RespondsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + RespondsEntry.RESPOND_TEXT +  " TEXT NOT NULL, "
                 + RespondsEntry.CALLED_TIMES + " INTEGER NOT NULL DEFAULT 1, "
-                + RespondsEntry.KEYWORDS_NUMS + " INTEGER NOT NULL DEFAULT 1 "
+                + RespondsEntry.KEYWORDS_NUMS + " INTEGER NOT NULL DEFAULT 1, "
+                + RespondsEntry.RESPOND_TYPE + " INTEGER NOT NULL DEFAULT 0 "
                 +" );";
         db.execSQL(SQL_CREATE_RESPONDS_TABLE);
         System.out.println("回复表建立完成");
