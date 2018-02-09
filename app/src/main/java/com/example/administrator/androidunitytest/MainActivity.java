@@ -45,8 +45,10 @@ public class MainActivity extends UnityPlayerActivity {
     }
 
     //由Unity调用，使用数据库进行语意分析
-    private void sentenceParse(String sentenceText){
+    private void sentenceParse(String sentenceText, String indexString){
 //        insertDefauleData();   //查看是否需要插入默认数据
+        int propertyIndex = Integer.parseInt(indexString);
+        System.out.println("已经接收到属性关键词，其类别为： " + propertyIndex);
         DBM.logParse(sentenceText);
     }
 
@@ -104,7 +106,6 @@ public class MainActivity extends UnityPlayerActivity {
 
 
     private void PopDialogView(){
-        // TODO: 2018/2/1 从数据库中取出每一条Dialog数据，并依次调用Unity端的GetOneDialog方法，将每一条数据插入DialogView
         DBM.queryAllDialog(); //获取所有对话
         System.out.println("已获取全部对话");
         //依次打包为Json，并转存给Unity
