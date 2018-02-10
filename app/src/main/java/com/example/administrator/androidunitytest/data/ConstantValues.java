@@ -101,4 +101,12 @@ public class ConstantValues {
      * Data
      */
     public static HashMap<String, String> DIALOGS = new HashMap<>();   //用于储存所有从数据库里取出的对话数据
+
+
+    /**
+     * Entity Type
+     */
+    public static int ENTITY_TYPE_UNKNOW = 0;     //entity类型不明
+    public static int ENTITY_TYPE_PERSON_NAME = 1;   //entity类型为“人名”
+    public static int ENTITY_TYPE_ORG_NAME = 2;    //entity类型为“机构名”
 }
