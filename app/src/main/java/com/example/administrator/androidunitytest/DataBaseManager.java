@@ -258,6 +258,7 @@ public class DataBaseManager {
         // FIXME: 2018/1/31 再Unity里根据每次更新写一个提示，如“首次安装游戏，初始化数据需要时间，请稍候~” 或 “游戏更新，正在初始化数据，请稍候”
         insertDefaultDialog();
         insertDefaultQuest();
+        ;
     }
 
     //插入任务
